@@ -1,13 +1,12 @@
-import os
 import argparse
 import datetime
+import os
 import pathlib
 import string
 
-import pandas as pd
-import numpy as np
 import git
-
+import numpy as np
+import pandas as pd
 
 WEEK_RANGE = 52
 USER = os.environ["SPOOF_USER"]
@@ -35,7 +34,7 @@ def spoof_commit(repo_root: pathlib.Path, date_zero: datetime.datetime, day: int
     REPO = git.Repo(repo_root)
     AUTHOR = git.Actor(name=USER, email=EMAIL)
     data = "".join(RNG.choice(a=list(string.ascii_letters), size=data_size).tolist())
-    
+
     target_path = repo_root.joinpath(target_file)
     with open(target_path, "w") as fout:
         fout.write(data)
@@ -59,9 +58,9 @@ if __name__ == "__main__":
         data = load_art(args.csv_art)
     else:
         data = random_dummy(args.dummy_min, args.dummy_max)
-    
+
     date_zero = get_date_zero()
-    
+
     for w_idx, week_list in enumerate(data):
         for d_idx, day_value in enumerate(week_list):
             for _ in range(day_value):
@@ -69,9 +68,9 @@ if __name__ == "__main__":
                     repo_root=args.target_repo,
                     date_zero=date_zero,
                     day=d_idx,
-                    week=w_idx
+                    week=w_idx,
                 )
-    
+
 
 
 
