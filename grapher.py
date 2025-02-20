@@ -8,26 +8,27 @@ import pandas as pd
 import numpy as np
 import git
 
-RNG = np.random.default_rng(123)
 
+WEEK_RANGE = 52
 USER = os.environ["SPOOF_USER"]
 EMAIL = os.environ["SPOOF_EMAIL"]
+SEED = os.getenv("RNG_SEED", 123)
 
-
+RNG = np.random.default_rng(SEED)
 
 def load_art(csv_path: str) -> list[list[int]]:
     df = pd.read_csv(csv_path, index_col="Day", header=0)
     return df.T.to_numpy().tolist()
 
-def flat_dummy()-> list[list[int]]:
-    return [[1 for _ in range(7)] for __ in range(50)]
+def random_dummy(dmin: int, dmax: int)-> list[list[int]]:
+    return [[RNG.integers(low=dmin,high=dmax) for _ in range(7)] for __ in range(WEEK_RANGE)]
 
 
 def get_date_zero()-> datetime.datetime:
     now = datetime.datetime.now(datetime.UTC)
     delta_to_sunday = (now.weekday() + 1) % 7
     this_sunday = now - datetime.timedelta(days=delta_to_sunday)
-    zero_date = this_sunday - datetime.timedelta(days=7*51)
+    zero_date = this_sunday - datetime.timedelta(days=7*WEEK_RANGE)
     return zero_date
 
 def spoof_commit(repo_root: pathlib.Path, date_zero: datetime.datetime, day: int, week: int, target_file: str = "dummy_data.txt", data_size: int = 32) -> None:
@@ -50,12 +51,14 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("target_repo", type=pathlib.Path)
     parser.add_argument("--csv-art", required=False, default=None)
+    parser.add_argument("--dummy-min", type=int, default=0, required=False)
+    parser.add_argument("--dummy-max", type=int, default=30, required=False)
     args = parser.parse_args()
 
     if args.csv_art is not None:
         data = load_art(args.csv_art)
     else:
-        data = flat_dummy()
+        data = random_dummy(args.dummy_min, args.dummy_max)
     
     date_zero = get_date_zero()
     
