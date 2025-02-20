@@ -1,15 +1,15 @@
-import os
 import argparse
 import datetime
+import os
 import pathlib
 import string
 
-import pandas as pd
-import numpy as np
 import git
+import numpy as np
+import tqdm
+import pandas as pd
 
-
-WEEK_RANGE = 52
+WEEK_RANGE = 51
 USER = os.environ["SPOOF_USER"]
 EMAIL = os.environ["SPOOF_EMAIL"]
 SEED = os.getenv("RNG_SEED", 123)
@@ -35,7 +35,7 @@ def spoof_commit(repo_root: pathlib.Path, date_zero: datetime.datetime, day: int
     REPO = git.Repo(repo_root)
     AUTHOR = git.Actor(name=USER, email=EMAIL)
     data = "".join(RNG.choice(a=list(string.ascii_letters), size=data_size).tolist())
-    
+
     target_path = repo_root.joinpath(target_file)
     with open(target_path, "w") as fout:
         fout.write(data)
@@ -44,7 +44,9 @@ def spoof_commit(repo_root: pathlib.Path, date_zero: datetime.datetime, day: int
     fake_date = date_zero + datetime.timedelta(days=delta_days)
 
     REPO.index.add(target_path)
-    REPO.index.commit(f"Commit for day={day} week={week}", author_date=fake_date, commit_date=fake_date, author=AUTHOR)
+    REPO.index.commit(f"Commit for day={day} week={week}", 
+                      author_date=fake_date, commit_date=fake_date, 
+                      committer=AUTHOR, author=AUTHOR)
     REPO.close()
 
 if __name__ == "__main__":
@@ -52,26 +54,26 @@ if __name__ == "__main__":
     parser.add_argument("target_repo", type=pathlib.Path)
     parser.add_argument("--csv-art", required=False, default=None)
     parser.add_argument("--dummy-min", type=int, default=0, required=False)
-    parser.add_argument("--dummy-max", type=int, default=30, required=False)
+    parser.add_argument("--dummy-max", type=int, default=5, required=False)
     args = parser.parse_args()
 
     if args.csv_art is not None:
         data = load_art(args.csv_art)
     else:
         data = random_dummy(args.dummy_min, args.dummy_max)
-    
+
     date_zero = get_date_zero()
-    
-    for w_idx, week_list in enumerate(data):
+
+    for w_idx, week_list in enumerate(tqdm.tqdm(data)):
         for d_idx, day_value in enumerate(week_list):
             for _ in range(day_value):
                 spoof_commit(
                     repo_root=args.target_repo,
                     date_zero=date_zero,
                     day=d_idx,
-                    week=w_idx
+                    week=w_idx,
                 )
-    
+
 
 
 
