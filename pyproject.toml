@@ -12,6 +12,23 @@ numpy = "^2.2.3"
 gitpython = "^3.1.44"
 
 
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.9.6"
+
+
+[tool.ruff]
+line-length = 120
+indent-width = 4
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = []
+
+# Allow fix for all enabled rules (when `--fix`) is provided.
+fixable = ["ALL"]
+unfixable = []
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
