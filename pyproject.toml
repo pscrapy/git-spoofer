@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "git-spoofer"
-version = "0.1.0"
+version = "1.0.0"
 description = ""
 authors = ["pnicoli <pnicoli>"]
 readme = "README.md"
@@ -10,6 +10,8 @@ python = "^3.12"
 pandas = "^2.2.3"
 numpy = "^2.2.3"
 gitpython = "^3.1.44"
+requests = "^2.32.3"
+tqdm = "^4.67.1"
 
 
 [tool.poetry.group.dev.dependencies]
