@@ -20,14 +20,14 @@ def flat_dummy()-> list[list[int]]:
 
 
 def get_date_zero()-> datetime.datetime:
-    now = datetime.datetime.now()
+    now = datetime.datetime.now(datetime.UTC)
     delta_to_sunday = (now.weekday() + 1) % 7
     this_sunday = now - datetime.timedelta(days=delta_to_sunday)
     zero_date = this_sunday - datetime.timedelta(days=7*51)
     return zero_date
 
 def spoof_commit(date_zero: datetime.datetime, day: int, week: int, target_file: str = "dummy_data.txt", data_size: int = 32) -> None:
-    data = "".join(RNG.choice(string.ascii_letters, data_size).tolist())
+    data = "".join(RNG.choice(a=list(string.ascii_letters), size=data_size).tolist())
     with open(target_file, "w") as fout:
         fout.write(data)
 
