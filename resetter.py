@@ -11,7 +11,7 @@ USER = os.environ["SPOOF_USER"]
 
 logging.basicConfig()
 logger = logging.getLogger()
-
+logger.setLevel(logging.INFO)
 
 def delete_remote(repo_name: str) -> None:
     url = f"https://api.github.com/repos/{USER}/{repo_name}"
@@ -25,6 +25,10 @@ def delete_remote(repo_name: str) -> None:
         headers=heads
     )
     logger.info("Delete request returned code %s" % resp.status_code)
+    if resp.status_code != 204:
+        logger.error("Repo delete failed")
+        raise RuntimeError("Repo deletion failed")
+
 
 
 def create_remote(repo_name: str) -> None:
@@ -44,12 +48,14 @@ def create_remote(repo_name: str) -> None:
         json=payload
     )
     logger.info("Create request returned code %s" % resp.status_code)
+    if resp.status_code != 201:
+        logger.error("Repo create failed")
+        raise RuntimeError("Repo creation failed")
 
 
 
 def reset_repo(repo_root: pathlib.Path) -> None:
     repo_name = repo_root.parts[-1]
-
     REPO = git.Repo(repo_root)
     REPO.git.reset('--hard', "ROOT")
     logger.info("Reset repo to ROOT tag")
