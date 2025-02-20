@@ -54,7 +54,7 @@ if __name__ == "__main__":
     parser.add_argument("target_repo", type=pathlib.Path)
     parser.add_argument("--csv-art", required=False, default=None)
     parser.add_argument("--dummy-min", type=int, default=0, required=False)
-    parser.add_argument("--dummy-max", type=int, default=10, required=False)
+    parser.add_argument("--dummy-max", type=int, default=5, required=False)
     args = parser.parse_args()
 
     if args.csv_art is not None:
