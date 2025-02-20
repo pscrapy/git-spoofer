@@ -1,5 +1,6 @@
 import argparse
 import datetime
+import pathlib
 import string
 
 import pandas as pd
@@ -8,7 +9,6 @@ import git
 
 RNG = np.random.default_rng(123)
 
-REPO = git.Repo(".")
 
 
 def load_art(csv_path: str) -> list[list[int]]:
@@ -26,19 +26,24 @@ def get_date_zero()-> datetime.datetime:
     zero_date = this_sunday - datetime.timedelta(days=7*51)
     return zero_date
 
-def spoof_commit(date_zero: datetime.datetime, day: int, week: int, target_file: str = "dummy_data.txt", data_size: int = 32) -> None:
+def spoof_commit(repo_root: pathlib.Path, date_zero: datetime.datetime, day: int, week: int, target_file: str = "dummy_data.txt", data_size: int = 32) -> None:
+    REPO = git.Repo(repo_root)
     data = "".join(RNG.choice(a=list(string.ascii_letters), size=data_size).tolist())
-    with open(target_file, "w") as fout:
+    
+    target_path = repo_root.joinpath(target_file)
+    with open(target_path, "w") as fout:
         fout.write(data)
 
     delta_days = 7*week + day
     fake_date = date_zero + datetime.timedelta(days=delta_days)
 
-    REPO.index.add(target_file)
+    REPO.index.add(target_path)
     REPO.index.commit(f"Commit for day={day} week={week}", author_date=fake_date, commit_date=fake_date)
+    REPO.close()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument("target_repo", type=pathlib.Path)
     parser.add_argument("--csv-art", required=False, default=None)
     args = parser.parse_args()
 
@@ -53,6 +58,7 @@ if __name__ == "__main__":
         for d_idx, day_value in enumerate(week_list):
             for _ in range(day_value):
                 spoof_commit(
+                    repo_root=args.target_repo,
                     date_zero=date_zero,
                     day=d_idx,
                     week=w_idx
