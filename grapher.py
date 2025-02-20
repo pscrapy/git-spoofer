@@ -9,7 +9,7 @@ import numpy as np
 import tqdm
 import pandas as pd
 
-WEEK_RANGE = 52
+WEEK_RANGE = 51
 USER = os.environ["SPOOF_USER"]
 EMAIL = os.environ["SPOOF_EMAIL"]
 SEED = os.getenv("RNG_SEED", 123)
@@ -44,7 +44,9 @@ def spoof_commit(repo_root: pathlib.Path, date_zero: datetime.datetime, day: int
     fake_date = date_zero + datetime.timedelta(days=delta_days)
 
     REPO.index.add(target_path)
-    REPO.index.commit(f"Commit for day={day} week={week}", author_date=fake_date, commit_date=fake_date, author=AUTHOR)
+    REPO.index.commit(f"Commit for day={day} week={week}", 
+                      author_date=fake_date, commit_date=fake_date, 
+                      committer=AUTHOR, author=AUTHOR)
     REPO.close()
 
 if __name__ == "__main__":
@@ -52,7 +54,7 @@ if __name__ == "__main__":
     parser.add_argument("target_repo", type=pathlib.Path)
     parser.add_argument("--csv-art", required=False, default=None)
     parser.add_argument("--dummy-min", type=int, default=0, required=False)
-    parser.add_argument("--dummy-max", type=int, default=30, required=False)
+    parser.add_argument("--dummy-max", type=int, default=10, required=False)
     args = parser.parse_args()
 
     if args.csv_art is not None:
