@@ -1,3 +1,4 @@
+import os
 import argparse
 import datetime
 import pathlib
@@ -8,6 +9,9 @@ import numpy as np
 import git
 
 RNG = np.random.default_rng(123)
+
+USER = os.environ["SPOOF_USER"]
+EMAIL = os.environ["SPOOF_EMAIL"]
 
 
 
@@ -28,6 +32,7 @@ def get_date_zero()-> datetime.datetime:
 
 def spoof_commit(repo_root: pathlib.Path, date_zero: datetime.datetime, day: int, week: int, target_file: str = "dummy_data.txt", data_size: int = 32) -> None:
     REPO = git.Repo(repo_root)
+    AUTHOR = git.Actor(name=USER, email=EMAIL)
     data = "".join(RNG.choice(a=list(string.ascii_letters), size=data_size).tolist())
     
     target_path = repo_root.joinpath(target_file)
@@ -38,7 +43,7 @@ def spoof_commit(repo_root: pathlib.Path, date_zero: datetime.datetime, day: int
     fake_date = date_zero + datetime.timedelta(days=delta_days)
 
     REPO.index.add(target_path)
-    REPO.index.commit(f"Commit for day={day} week={week}", author_date=fake_date, commit_date=fake_date)
+    REPO.index.commit(f"Commit for day={day} week={week}", author_date=fake_date, commit_date=fake_date, author=AUTHOR)
     REPO.close()
 
 if __name__ == "__main__":
