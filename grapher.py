@@ -6,6 +6,7 @@ import string
 
 import git
 import numpy as np
+import tqdm
 import pandas as pd
 
 WEEK_RANGE = 52
@@ -61,7 +62,7 @@ if __name__ == "__main__":
 
     date_zero = get_date_zero()
 
-    for w_idx, week_list in enumerate(data):
+    for w_idx, week_list in enumerate(tqdm.tqdm(data)):
         for d_idx, day_value in enumerate(week_list):
             for _ in range(day_value):
                 spoof_commit(
